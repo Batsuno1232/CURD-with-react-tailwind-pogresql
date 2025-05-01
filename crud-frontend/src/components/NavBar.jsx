@@ -1,7 +1,7 @@
 export default function Navbar({onOpen}) {
     return (
         <>
-            <div className="navbar bg-base-100 shadow-sm">
+            <div className="navbar bg-base-100 shadow-sm p-4">
                 <div className="navbar-start">
 
                     <a className="btn btn-ghost text-xl">ClientsI</a>
