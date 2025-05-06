@@ -1,10 +1,30 @@
-export default function Tablelist({handleOpen}) {
-    const clients = [{ id: 1, name: "John Doe", email: "John.Doe@gmail.com", job: "Developer", rate: "100", isactive: true },
-    { id: 2, name: "John1 Doe", email: "John1.Doe@gmail.com", job: "Developer1", rate: "101", isactive: true },
-    { id: 3, name: "John2 Doe", email: "John2.Doe@gmail.com", job: "Developer2", rate: "102", isactive: false },
-    ]
+import axios from 'axios';
+import { useState } from 'react';
+
+export default function Tablelist({ handleOpen,tableData,setTableData, searchTerm }) {
+    const [error, setError] = useState(null);
+
+    // Filter data based on the search term
+    const filteredData = tableData.filter(client => 
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.job.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+        if (confirmDelete) {
+            try {
+                await axios.delete(`http://localhost:3000/api/clients/${id}`);
+                setTableData((prevData) => prevData.filter(client => client.id !== id));
+            } catch (err) {
+                setError(err.message)
+            }
+        }
+    }
     return (
         <>
+            {error && <div className='alert alert-error'>{error}</div>}
             <div className="overflow-x-auto">
                 <table className="table">
                     {/* head */}
@@ -19,8 +39,8 @@ export default function Tablelist({handleOpen}) {
                         </tr>
                     </thead>
                     <tbody className="hover">
-                        {clients.map((client) => (
-                            <tr>
+                        {filteredData.map((client) => (
+                            <tr key={client.id}>
                                 <th>{client.id}</th>
                                 <td>{client.name}</td>
                                 <td>{client.email}</td>
@@ -32,12 +52,12 @@ export default function Tablelist({handleOpen}) {
                                     </button>
                                 </td>
                                 <td>
-                                    <button onClick={()=>handleOpen('edit')} className="btn btn-secondary">
+                                    <button onClick={() => handleOpen('edit', client)} className="btn btn-secondary">
                                         Update
                                     </button>
                                 </td>
                                 <td>
-                                    <button className="btn btn-error">
+                                    <button className="btn btn-error" onClick={() => handleDelete(client.id)}>
                                         Delete
                                     </button>
                                 </td>
